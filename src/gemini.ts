@@ -10,7 +10,7 @@ export const getGeminiApiKey = (): string => {
   if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
     return process.env.GEMINI_API_KEY;
   }
-  return "AIzaSyCFD75mR4b4hcBzVkUU-lSyGW5qO0-BZ18";
+  return "";
 };
 
 export const setGeminiApiKey = (key: string) => {
