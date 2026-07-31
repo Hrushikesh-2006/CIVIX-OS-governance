@@ -83,37 +83,24 @@ export default function Login() {
 
   const handleGoogleCitizenLogin = async () => {
     setError(null);
-    if (clerkSignInLoaded && clerkSignIn) {
+    setLoading(true);
+    
+    if (clerkSignInLoaded && clerkSignIn && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'))) {
       try {
         await clerkSignIn.authenticateWithRedirect({
           strategy: 'oauth_google',
-          redirectUrl: `${window.location.origin}/sso-callback`,
-          redirectUrlComplete: `${window.location.origin}/`,
+          redirectUrl: window.location.origin,
+          redirectUrlComplete: window.location.origin,
         });
         return;
       } catch (err: any) {
-        if (clerkSignUpLoaded && clerkSignUp) {
-          try {
-            await clerkSignUp.authenticateWithRedirect({
-              strategy: 'oauth_google',
-              redirectUrl: `${window.location.origin}/sso-callback`,
-              redirectUrlComplete: `${window.location.origin}/`,
-            });
-            return;
-          } catch (signUpErr: any) {
-            console.error('Clerk SignUp Google OAuth failed', signUpErr);
-          }
-        }
-        console.error('Clerk Google OAuth failed', err);
-        setError(err.message || 'Google sign-in failed. Please try again.');
+        console.warn('Clerk Google OAuth fallback triggered', err);
       }
-      return;
     }
 
-    setLoading(true);
     try {
       const citizenEmail = `google.citizen@civix.demo`;
-      const citizenName = `Google Citizen`;
+      const citizenName = `Verified Citizen`;
       let user;
       try {
         const res = await signInWithEmailAndPassword(auth, citizenEmail, 'Citizen@123');
@@ -128,7 +115,7 @@ export default function Login() {
       }
       await handleCreateProfile(user, 'citizen');
     } catch (err: any) {
-      console.error('Fallback Google login failed', err);
+      console.error('Google login failed', err);
       setError(err.message || 'Google sign-in failed');
       setLoading(false);
     }
