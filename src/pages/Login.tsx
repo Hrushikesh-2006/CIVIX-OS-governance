@@ -85,7 +85,9 @@ export default function Login() {
     setError(null);
     setLoading(true);
     
-    if (clerkSignInLoaded && clerkSignIn && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'))) {
+    // 1. Attempt Clerk Google OAuth on any domain if valid Clerk key is provided
+    const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+    if (clerkSignInLoaded && clerkSignIn && publishableKey && !publishableKey.includes('placeholder')) {
       try {
         await clerkSignIn.authenticateWithRedirect({
           strategy: 'oauth_google',
@@ -98,19 +100,32 @@ export default function Login() {
       }
     }
 
+    // 2. Direct Citizen Gmail Authentication (creates/signs in with user's actual Gmail)
     try {
-      const citizenEmail = `google.citizen@civix.demo`;
-      const citizenName = `Verified Citizen`;
+      let targetEmail = email.trim();
+      let targetName = email ? email.split('@')[0] : '';
+
+      if (!targetEmail || !targetEmail.includes('@')) {
+        const inputEmail = window.prompt("Enter your Gmail address to sign in as a Verified Citizen:", "hrushikeshanumula1111@gmail.com");
+        if (!inputEmail) {
+          setLoading(false);
+          return;
+        }
+        targetEmail = inputEmail.trim().toLowerCase();
+        const inputName = window.prompt("Enter your Full Name:", targetEmail.split('@')[0]);
+        targetName = inputName ? inputName.trim() : targetEmail.split('@')[0];
+      }
+
       let user;
       try {
-        const res = await signInWithEmailAndPassword(auth, citizenEmail, 'Citizen@123');
+        const res = await signInWithEmailAndPassword(auth, targetEmail, 'Citizen@123');
         user = res.user;
       } catch {
-        const res = await createUserWithEmailAndPassword(auth, citizenEmail, 'Citizen@123');
+        const res = await createUserWithEmailAndPassword(auth, targetEmail, 'Citizen@123');
         user = res.user;
         await updateProfile(user, {
-          displayName: citizenName,
-          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(citizenName)}&background=4285F4&color=fff`
+          displayName: targetName || targetEmail.split('@')[0],
+          photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName || targetEmail)}&background=4285F4&color=fff`
         });
       }
       await handleCreateProfile(user, 'citizen');

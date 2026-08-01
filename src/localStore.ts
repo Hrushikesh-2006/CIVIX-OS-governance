@@ -200,25 +200,36 @@ function ensureSeededIssues(_dbObj: Record<string, Record<string, any>>) {
   // No demo data — only real citizen-reported issues appear in the feed
 }
 
-// ── One-time migration: remove old seeded demo issues from localStorage ──────
-// These were injected in previous versions and should not appear in the feed.
+// ── One-time migration: remove old seeded demo issues & demo accounts ──────
 const DEMO_ISSUE_IDS = ['issue_101', 'issue_102', 'issue_103', 'issue_104'];
-const MIGRATION_KEY = 'civix.migrated_v2';
+const MIGRATION_KEY = 'civix.migrated_v3';
 if (typeof window !== 'undefined' && !localStorage.getItem(MIGRATION_KEY)) {
   try {
     const raw = localStorage.getItem('civix.localDb');
     if (raw) {
       const db = JSON.parse(raw);
+      let changed = false;
       if (db.issues) {
-        let changed = false;
         DEMO_ISSUE_IDS.forEach(id => {
           if (db.issues[id]) {
             delete db.issues[id];
             changed = true;
           }
         });
-        if (changed) localStorage.setItem('civix.localDb', JSON.stringify(db));
       }
+      if (db.users) {
+        Object.keys(db.users).forEach(uid => {
+          if (db.users[uid]?.email === 'google.citizen@civix.demo') {
+            delete db.users[uid];
+            changed = true;
+          }
+        });
+      }
+      if (changed) localStorage.setItem('civix.localDb', JSON.stringify(db));
+    }
+    const currentRaw = localStorage.getItem('civix.currentUser');
+    if (currentRaw && currentRaw.includes('google.citizen@civix.demo')) {
+      localStorage.removeItem('civix.currentUser');
     }
   } catch { /* ignore parse errors */ }
   localStorage.setItem(MIGRATION_KEY, '1');
