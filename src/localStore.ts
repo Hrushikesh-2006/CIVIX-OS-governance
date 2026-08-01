@@ -150,11 +150,13 @@ function ensureSeededUserProfiles(dbObj: Record<string, Record<string, any>>) {
 
 /**
  * Award Civic Coins to a user profile and update their complaint counts.
+ * Syncs user metadata and triggers real-time leaderboard position updates.
  */
 export function awardUserCoins(uid: string, amount: number, isResolutionBonus = false) {
   const dbObj = readDb();
   const usersCollection = dbObj['users'] || {};
   const userDoc = usersCollection[uid] || {};
+  const currentUser = auth.currentUser;
 
   const currentCoins = userDoc.coins || userDoc.civicCoins || 0;
   const currentComplaints = userDoc.complaintsCount || 0;
@@ -163,6 +165,10 @@ export function awardUserCoins(uid: string, amount: number, isResolutionBonus = 
 
   usersCollection[uid] = {
     ...userDoc,
+    displayName: userDoc.displayName || currentUser?.displayName || 'Citizen',
+    email: userDoc.email || currentUser?.email || `${uid}@civix.user`,
+    photoUrl: userDoc.photoUrl || currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userDoc.displayName || currentUser?.displayName || 'Citizen')}&background=10b981&color=fff`,
+    role: userDoc.role || 'citizen',
     coins: newCoins,
     civicCoins: newCoins,
     complaintsCount: isResolutionBonus ? currentComplaints : currentComplaints + 1,

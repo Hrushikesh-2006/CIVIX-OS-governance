@@ -33,8 +33,8 @@ export default function Leaderboard() {
         !u.email.endsWith('@civix.demo')
       );
 
-      // Sort strictly by real earned coins descending
-      realCitizens.sort((a, b) => (b.coins || 0) - (a.coins || 0));
+      // Sort strictly by real earned coins descending, tie-break by complaints count
+      realCitizens.sort((a, b) => (b.coins || 0) - (a.coins || 0) || (b.complaintsCount || 0) - (a.complaintsCount || 0));
       setUsers(realCitizens);
       setLoading(false);
     }, (err) => {
