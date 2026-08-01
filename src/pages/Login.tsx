@@ -42,7 +42,7 @@ export default function Login() {
     setAuthMode('login');
 
     if (role === 'official' || role === 'admin') {
-      const match = OFFICIAL_CREDENTIALS.find(c => c.deptId === (deptId || 'admin') || c.role === role);
+      const match = OFFICIAL_CREDENTIALS.find(c => role === 'admin' ? c.role === 'admin' : c.deptId === deptId);
       if (match) {
         setEmail(match.email);
         setPassword(match.pass);
@@ -236,7 +236,7 @@ export default function Login() {
   };
 
   const currentCreds = selectedPortal?.role !== 'citizen'
-    ? OFFICIAL_CREDENTIALS.find(c => c.deptId === selectedPortal?.deptId || c.role === selectedPortal?.role)
+    ? OFFICIAL_CREDENTIALS.find(c => selectedPortal?.role === 'admin' ? c.role === 'admin' : c.deptId === selectedPortal?.deptId)
     : null;
 
   const copyToClipboard = (text: string, label: string) => {
