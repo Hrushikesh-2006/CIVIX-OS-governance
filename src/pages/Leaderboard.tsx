@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { db, collection, onSnapshot } from '../localStore';
 import { useAuth } from '../AuthContext';
 import { Trophy, Award, Sparkles, Coins, Crown, Flame, ShieldCheck, CheckCircle2, User, Search, Medal, Zap, Star } from 'lucide-react';
@@ -16,34 +16,90 @@ interface LeaderboardUser {
 }
 
 export default function Leaderboard() {
-  const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<LeaderboardUser[]>([]);
+  const { user: currentUser, profile } = useAuth();
+  const [rawUsers, setRawUsers] = useState<LeaderboardUser[]>([]);
+  const [rawIssues, setRawIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    // Live subscription to real registered users only
-    const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
+    // Live subscription to registered users
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
       const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as LeaderboardUser));
-      // Strict filter: Only real citizen accounts (no officials/admins, no fake accounts)
-      const realCitizens = docs.filter(u => 
-        (u.role === 'citizen' || !u.role) && 
-        !u.id.startsWith('citizen_champ_') &&
-        u.email &&
-        !u.email.endsWith('@civix.demo')
-      );
-
-      // Sort strictly by real earned coins descending, tie-break by complaints count
-      realCitizens.sort((a, b) => (b.coins || 0) - (a.coins || 0) || (b.complaintsCount || 0) - (a.complaintsCount || 0));
-      setUsers(realCitizens);
+      setRawUsers(docs);
       setLoading(false);
     }, (err) => {
-      console.error('Leaderboard snapshot error:', err);
+      console.error('Leaderboard users snapshot error:', err);
       setLoading(false);
     });
 
-    return unsubscribeUsers;
+    // Live subscription to issues collection for dynamic complaint & coin calculation
+    const unsubIssues = onSnapshot(collection(db, 'issues'), (snapshot) => {
+      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setRawIssues(docs);
+    }, (err) => {
+      console.error('Leaderboard issues snapshot error:', err);
+    });
+
+    return () => {
+      unsubUsers();
+      unsubIssues();
+    };
   }, []);
+
+  // Dynamically compute real citizen standings & earned coins
+  const users = useMemo(() => {
+    const userMap: Record<string, LeaderboardUser> = {};
+
+    // 1. Add all registered citizen users
+    rawUsers.forEach(u => {
+      if ((u.role === 'citizen' || !u.role) && !u.id.startsWith('citizen_champ_') && !u.email?.endsWith('@civix.demo')) {
+        userMap[u.id] = { ...u };
+      }
+    });
+
+    // 2. Ensure current logged in citizen user is present
+    if (currentUser?.uid && (currentUser.email || currentUser.displayName || profile?.displayName)) {
+      if (!userMap[currentUser.uid]) {
+        userMap[currentUser.uid] = {
+          id: currentUser.uid,
+          displayName: currentUser.displayName || profile?.displayName || 'Citizen',
+          email: currentUser.email || profile?.email || '',
+          photoUrl: currentUser.photoURL || profile?.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'Citizen')}`,
+          role: 'citizen',
+          coins: 0,
+          complaintsCount: 0
+        };
+      }
+    }
+
+    // 3. Compute actual complaint counts and 10 coins per report for each citizen
+    const processedList = Object.values(userMap).map(u => {
+      const userIssues = rawIssues.filter(i =>
+        i.reporterUid === u.id ||
+        (u.email && i.reporterEmail && i.reporterEmail.toLowerCase() === u.email.toLowerCase()) ||
+        (u.displayName && i.reporterName && i.reporterName.toLowerCase() === u.displayName.toLowerCase())
+      );
+
+      const actualComplaints = Math.max(u.complaintsCount || 0, userIssues.length);
+      const resolvedCount = Math.max(u.resolvedCount || 0, userIssues.filter(i => i.status === 'resolved' || i.status === 'completed').length);
+
+      // Minimum 10 coins for every reported complaint + 5 bonus coins for resolved issues
+      const calculatedCoins = (actualComplaints * 10) + (resolvedCount * 5);
+      const finalCoins = Math.max(u.coins || 0, calculatedCoins);
+
+      return {
+        ...u,
+        complaintsCount: actualComplaints,
+        resolvedCount,
+        coins: finalCoins
+      };
+    });
+
+    // 4. Sort by real earned coins descending, tie-break by complaints reported
+    processedList.sort((a, b) => (b.coins || 0) - (a.coins || 0) || (b.complaintsCount || 0) - (a.complaintsCount || 0));
+    return processedList;
+  }, [rawUsers, rawIssues, currentUser, profile]);
 
   const filteredUsers = users.filter(u => 
     (u.displayName || '').toLowerCase().includes(search.toLowerCase()) ||

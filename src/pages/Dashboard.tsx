@@ -74,7 +74,7 @@ export default function Dashboard() {
   };
 
   // User Civic Tag / Rank Title Calculation
-  const coins = profile?.coins ?? profile?.civicCoins ?? 0;
+  const coins = Math.max(profile?.coins ?? profile?.civicCoins ?? 0, myIssues.length * 10);
   const reportsCount = myIssues.length;
   const resolvedCount = myIssues.filter(i => i.status === 'resolved' || i.status === 'completed').length;
 
