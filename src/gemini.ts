@@ -173,14 +173,9 @@ Instructions:
     const realResponse = await callRealGeminiApi(systemPrompt);
     return realResponse;
   } catch (err: any) {
-    console.warn("Real Gemini Call Error, engaging smart local fallback:", err);
-    const localAnswer = generateLocalCivicAiResponse(userQuery, departmentContext);
-    const isQuota = err.message?.includes("quota") || err.message?.includes("Quota") || err.message?.includes("429") || err.message?.includes("rate");
-    const warningHeader = isQuota
-      ? `⚠️ **Google Gemini API Rate Limit / Quota Reached**\n*(Free tier quota temporarily reached for Gemini model. Using CIVIX AI Smart Fallback. Please retry in ~60s or add your own free Gemini API key in Key Settings.)*\n\n---\n\n`
-      : `⚠️ **Gemini API Note**: ${err.message}\n\n---\n\n`;
-
-    return warningHeader + localAnswer;
+    console.warn("Real Gemini Call Error, falling back to local CIVIX AI engine:", err);
+    // Seamlessly return smart local response when API quota or rate limits occur
+    return generateLocalCivicAiResponse(userQuery, departmentContext);
   }
 };
 

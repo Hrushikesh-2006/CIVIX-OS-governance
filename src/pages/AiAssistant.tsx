@@ -85,7 +85,7 @@ export default function AiAssistant() {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: `⚠️ **Gemini API Error**: ${err.message}\n\nPlease click "Key Settings" above to enter a valid Gemini API Key.`,
+        text: `### CIVIX AI Assistant\n\nI am currently using the CIVIX Smart Fallback system. You can ask any question regarding city departments, garbage, water leaks, streetlights, or public roads.\n\n*If you wish to use live Google Gemini AI, click **Key Settings** above to enter your free API Key.*`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
     } finally {
