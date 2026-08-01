@@ -130,3 +130,26 @@ export function calculateOfficerResponseDuration(issue: any): {
     };
   }
 }
+
+/**
+ * Robustly parses any timestamp object, Firestore Timestamp, { seconds: number },
+ * ISO string, or milliseconds epoch into a valid JavaScript Date. Returns null if invalid.
+ */
+export function parseDate(value: any): Date | null {
+  if (!value) return null;
+  if (typeof value.toDate === 'function') {
+    try {
+      const d = value.toDate();
+      if (d && !isNaN(d.getTime())) return d;
+    } catch { /* ignore */ }
+  }
+  if (typeof value.seconds === 'number') {
+    const d = new Date(value.seconds * 1000);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}

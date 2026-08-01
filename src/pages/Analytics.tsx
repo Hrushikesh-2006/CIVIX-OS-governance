@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval, isToday, isYesterday } from 'date-fns';
 import { DEPARTMENTS } from '../constants';
+import { parseDate } from '../utils';
 
 export default function Analytics() {
   const { profile } = useAuth();
@@ -60,17 +61,13 @@ export default function Analytics() {
   // Compute District Daily Complaints & Trend Metrics
   const districtMetrics = useMemo(() => {
     const todayIssues = issues.filter(i => {
-      const dateStr = i.createdAt;
-      if (!dateStr) return false;
-      const d = new Date(dateStr);
-      return !isNaN(d.getTime()) && isToday(d);
+      const d = parseDate(i.createdAt);
+      return d ? isToday(d) : false;
     });
 
     const yesterdayIssues = issues.filter(i => {
-      const dateStr = i.createdAt;
-      if (!dateStr) return false;
-      const d = new Date(dateStr);
-      return !isNaN(d.getTime()) && isYesterday(d);
+      const d = parseDate(i.createdAt);
+      return d ? isYesterday(d) : false;
     });
 
     // Breakdown today's complaints by department
@@ -115,8 +112,8 @@ export default function Analytics() {
       const start = startOfMonth(date);
       const end = endOfMonth(date);
       const count = issues.filter(issue => {
-        const d = issue.createdAt ? new Date(issue.createdAt) : null;
-        return d && !isNaN(d.getTime()) && isWithinInterval(d, { start, end });
+        const d = parseDate(issue.createdAt);
+        return d ? isWithinInterval(d, { start, end }) : false;
       }).length;
       return {
         name: format(date, 'MMM'),
