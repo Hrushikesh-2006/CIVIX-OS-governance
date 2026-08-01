@@ -626,6 +626,45 @@ export default function Login() {
                     </motion.button>
                   ))}
                 </div>
+
+                {/* Official Credentials Reference Table Card */}
+                <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-3 font-sans text-xs mt-3">
+                  <div className="flex items-center justify-between font-bold text-amber-300 uppercase tracking-wider text-[11px]">
+                    <span className="flex items-center gap-1.5"><KeyRound className="w-4 h-4 text-amber-400" /> Official Department Credentials Quick Access</span>
+                    <span className="text-[10px] bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded border border-amber-500/30">7 Active Portals</span>
+                  </div>
+
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left text-[11px] font-mono">
+                      <thead className="bg-slate-900 text-zinc-400 uppercase text-[10px] tracking-wider">
+                        <tr>
+                          <th className="p-2.5 rounded-l-lg">Portal / Department</th>
+                          <th className="p-2.5">Official Email</th>
+                          <th className="p-2.5">Password</th>
+                          <th className="p-2.5 text-right rounded-r-lg">Direct Sign In</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {OFFICIAL_CREDENTIALS.map(cred => (
+                          <tr key={cred.deptId} className="hover:bg-white/5 transition-colors">
+                            <td className="p-2.5 font-bold text-white font-sans truncate">{cred.name}</td>
+                            <td className="p-2.5 text-zinc-300">{cred.email}</td>
+                            <td className="p-2.5 text-amber-400 font-bold">{cred.pass}</td>
+                            <td className="p-2.5 text-right">
+                              <button
+                                type="button"
+                                onClick={() => handleQuickOfficialLogin(cred)}
+                                className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 font-bold rounded-lg border border-amber-500/40 transition-colors text-[10px] whitespace-nowrap shadow-sm"
+                              >
+                                Sign In ➔
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

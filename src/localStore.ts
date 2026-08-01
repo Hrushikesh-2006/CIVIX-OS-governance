@@ -125,21 +125,22 @@ function ensureSeededUserProfiles(dbObj: Record<string, Record<string, any>>) {
   });
 
   SEEDED_OFFICIALS.forEach(official => {
-    // ALWAYS sync exact department title and departmentId for official accounts
     const existing = usersCollection[official.uid] || {};
-    usersCollection[official.uid] = {
-      ...existing,
-      displayName: official.displayName,
-      email: official.email,
-      photoUrl: official.photoURL,
-      role: official.role,
-      departmentId: official.deptId || (official.role === 'admin' ? 'admin' : null),
-      emailVerified: true,
-      coins: existing.coins || 0,
-      updatedAt: new Date().toISOString(),
-      createdAt: existing.createdAt || new Date().toISOString()
-    };
-    modified = true;
+    if (!existing.email || existing.displayName !== official.displayName || existing.role !== official.role || existing.departmentId !== (official.deptId || (official.role === 'admin' ? 'admin' : null))) {
+      usersCollection[official.uid] = {
+        ...existing,
+        displayName: official.displayName,
+        email: official.email,
+        photoUrl: official.photoURL,
+        role: official.role,
+        departmentId: official.deptId || (official.role === 'admin' ? 'admin' : null),
+        emailVerified: true,
+        coins: existing.coins || 0,
+        updatedAt: new Date().toISOString(),
+        createdAt: existing.createdAt || new Date().toISOString()
+      };
+      modified = true;
+    }
   });
 
   if (modified) {
