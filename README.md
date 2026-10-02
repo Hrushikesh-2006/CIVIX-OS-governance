@@ -10,6 +10,15 @@
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.0_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.dev/)
 [![Clerk Auth](https://img.shields.io/badge/Clerk_Auth-Google_OAuth-6C47FF?style=for-the-badge&logo=clerk&logoColor=white)](https://clerk.com/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+<h2 align="center">🎥 Project Demo</h2>
+
+<p align="center">
+  <b>Watch CIVIX OS in action:</b><br>
+  A quick walkthrough of the platform, its key features, and smart civic governance workflow.
+</p>
+
+<p align="center">
+  ▶️ <a href="https://drive.google.com/file/d/16Jsqx80boVNuuAHr22paprPCnID4pOBp/view"><strong>Watch Demo Video</strong></a>
 </p>
 </div>
 
