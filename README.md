@@ -11,7 +11,7 @@
 [![Clerk Auth](https://img.shields.io/badge/Clerk_Auth-Google_OAuth-6C47FF?style=for-the-badge&logo=clerk&logoColor=white)](https://clerk.com/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 <p align="center">
-  <a href="https://civix-gemma-two.vercel.app/">
+  <a href="https://https://civix-gemma-two.vercel.app/">
     🚀 <strong>LIVE DEMO</strong>
   </a>
 </p>
