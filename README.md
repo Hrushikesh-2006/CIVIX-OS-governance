@@ -10,8 +10,11 @@
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.0_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.dev/)
 [![Clerk Auth](https://img.shields.io/badge/Clerk_Auth-Google_OAuth-6C47FF?style=for-the-badge&logo=clerk&logoColor=white)](https://clerk.com/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[[Live Demo](https://civix-gamma-two.vercel.app/home)]
-
+ <p align="center">
+  <a href="LIVE DEMO:https://civix-gemma-two.vercel.app/home">
+    <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-Visit%20CIVIX-00C853?style=for-the-badge">
+  </a>
+</p>
 </div>
 
 ---
